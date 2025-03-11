@@ -13,7 +13,7 @@ export default function ProcurementHome() {
   return (
     <>
       <PageHeader
-        title="Procurement Dashboard"
+        title="Procurement"
         description="Overview of procurement activities and actions"
       />
       

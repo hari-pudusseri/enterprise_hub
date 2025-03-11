@@ -180,4 +180,158 @@ export function getProcurementTasksByAgent(agentId: string) {
 
 export function getProcurementTasksByCategory(category: ProcurementTask['category']) {
   return procurementTasks.filter(task => task.category === category);
-} 
+}
+
+// Active Procurement Tasks
+export const activeProcurementTasks: Task[] = [
+  {
+    id: "p1",
+    title: "Review Purchase Order #PO-2024-001",
+    description: "Review and validate purchase order for office supplies including terms, pricing, and delivery schedules.",
+    type: "procurement",
+    status: TaskStatus.IN_PROGRESS,
+    priority: TaskPriority.HIGH,
+    progress: 65,
+    agent: procurementAgents[0],
+    assignedAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+    dueDate: new Date(Date.now() + 86400000).toISOString(), // 24 hours from now
+    messages: [],
+    progressUpdates: [
+      {
+        id: "pu1",
+        title: "Started PO review",
+        description: "Initiating comprehensive review of purchase order details",
+        status: "completed",
+        timestamp: new Date(Date.now() - 3600000).toISOString()
+      },
+      {
+        id: "pu2",
+        title: "Pricing validation",
+        description: "Verifying unit prices and total calculations",
+        status: "in-progress",
+        timestamp: new Date(Date.now() - 1800000).toISOString()
+      }
+    ]
+  },
+  {
+    id: "p2",
+    title: "Supplier Contract Negotiation",
+    description: "Negotiate terms with new office furniture supplier for annual contract renewal.",
+    type: "procurement",
+    status: TaskStatus.IN_PROGRESS,
+    priority: TaskPriority.MEDIUM,
+    progress: 30,
+    agent: procurementAgents[1],
+    assignedAt: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+    dueDate: new Date(Date.now() + 172800000).toISOString(), // 48 hours from now
+    messages: [],
+    progressUpdates: [
+      {
+        id: "pu3",
+        title: "Initial contact made",
+        description: "Established communication with supplier representative",
+        status: "completed",
+        timestamp: new Date(Date.now() - 7200000).toISOString()
+      }
+    ]
+  },
+  {
+    id: "p3",
+    title: "Process Invoice Batch #INV-2024-Q1",
+    description: "Process and validate quarterly invoices from multiple vendors.",
+    type: "procurement",
+    status: TaskStatus.WAITING,
+    priority: TaskPriority.MEDIUM,
+    progress: 0,
+    agent: procurementAgents[2],
+    assignedAt: new Date(Date.now() - 900000).toISOString(), // 15 minutes ago
+    dueDate: new Date(Date.now() + 259200000).toISOString(), // 72 hours from now
+    messages: [],
+    progressUpdates: []
+  }
+];
+
+// Completed Procurement Tasks
+export const completedProcurementTasks: Task[] = [
+  {
+    id: "p4",
+    title: "Vendor Compliance Audit",
+    description: "Complete annual compliance audit for top 5 vendors.",
+    type: "procurement",
+    status: TaskStatus.COMPLETED,
+    priority: TaskPriority.HIGH,
+    progress: 100,
+    agent: procurementAgents[0],
+    assignedAt: new Date(Date.now() - 604800000).toISOString(), // 7 days ago
+    completedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    messages: [],
+    progressUpdates: [
+      {
+        id: "pu4",
+        title: "Audit completed",
+        description: "All vendor compliance checks completed successfully",
+        status: "completed",
+        timestamp: new Date(Date.now() - 86400000).toISOString()
+      }
+    ]
+  },
+  {
+    id: "p5",
+    title: "Update Supplier Database",
+    description: "Update supplier information and performance metrics in the database.",
+    type: "procurement",
+    status: TaskStatus.COMPLETED,
+    priority: TaskPriority.LOW,
+    progress: 100,
+    agent: procurementAgents[1],
+    assignedAt: new Date(Date.now() - 432000000).toISOString(), // 5 days ago
+    completedAt: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
+    messages: [],
+    progressUpdates: [
+      {
+        id: "pu5",
+        title: "Database update complete",
+        description: "All supplier records have been updated with latest information",
+        status: "completed",
+        timestamp: new Date(Date.now() - 345600000).toISOString()
+      }
+    ]
+  },
+  {
+    id: "p6",
+    title: "Generate Q4 Procurement Report",
+    description: "Compile and analyze Q4 procurement metrics and spending.",
+    type: "procurement",
+    status: TaskStatus.COMPLETED,
+    priority: TaskPriority.MEDIUM,
+    progress: 100,
+    agent: procurementAgents[2],
+    assignedAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+    completedAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    messages: [],
+    progressUpdates: [
+      {
+        id: "pu6",
+        title: "Report generated",
+        description: "Q4 procurement report generated with all required metrics",
+        status: "completed",
+        timestamp: new Date(Date.now() - 172800000).toISOString()
+      }
+    ]
+  }
+];
+
+// Helper function to get all procurement tasks
+export const getProcurementTasks = () => {
+  return [...activeProcurementTasks, ...completedProcurementTasks];
+};
+
+// Helper function to get active procurement tasks
+export const getActiveProcurementTasks = () => {
+  return activeProcurementTasks;
+};
+
+// Helper function to get completed procurement tasks
+export const getCompletedProcurementTasks = () => {
+  return completedProcurementTasks;
+}; 

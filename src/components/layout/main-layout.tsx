@@ -17,12 +17,47 @@ import {
   ShoppingCart,
   FileText,
   Receipt,
-  Home
+  Home,
+  FileContract,
+  ClipboardList
 } from "lucide-react";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
+
+const navItems: NavItem[] = [
+  {
+    title: "Home",
+    href: "/procurement",
+    icon: Home,
+  },
+  {
+    title: "Agents",
+    href: "/procurement/agents",
+    icon: Users,
+  },
+  {
+    title: "Purchases",
+    href: "/procurement/purchases",
+    icon: ShoppingCart,
+  },
+  {
+    title: "Suppliers",
+    href: "/procurement/suppliers",
+    icon: Building2,
+  },
+  {
+    title: "Contracts",
+    href: "/procurement/contracts",
+    icon: FileText,
+  },
+  {
+    title: "Invoices",
+    href: "/procurement/invoices",
+    icon: Receipt,
+  },
+];
 
 export function MainLayout({ children }: MainLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -97,7 +132,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b lg:hidden">
         <div className="flex items-center justify-between px-4 h-14">
           <Link to="/" className="font-semibold text-lg">
-            Agents Demo
+            Enterprise Hub
           </Link>
           <Button
             variant="ghost"
@@ -124,7 +159,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <div className="flex flex-col h-full">
             <div className="hidden lg:flex items-center h-14 px-6 border-b">
               <Link to="/" className="font-semibold text-lg">
-                Agents Demo
+                Enterprise Hub
               </Link>
             </div>
 
