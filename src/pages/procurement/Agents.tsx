@@ -5,6 +5,7 @@ import { AgentGrid } from "@/components/agent-grid";
 import { TaskList } from "@/components/task-list";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { procurementAgents } from "@/data/procurement-agents";
+import { AgentCard } from "@/components/agent-card";
 
 export default function ProcurementAgents() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,14 +31,18 @@ export default function ProcurementAgents() {
           </TabsList>
           
           <TabsContent value="agents">
-            <AgentGrid 
-              agents={procurementAgents.filter(agent => 
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {procurementAgents.filter(agent => 
                 agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                 agent.description.toLowerCase().includes(searchQuery.toLowerCase())
-              )}
-              title="Available Agents"
-              basePath="/procurement/agent"
-            />
+              ).map((agent) => (
+                <AgentCard
+                  key={agent.id}
+                  agent={agent}
+                  variant="procurement"
+                />
+              ))}
+            </div>
           </TabsContent>
           
           <TabsContent value="tasks">

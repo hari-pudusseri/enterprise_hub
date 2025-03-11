@@ -48,23 +48,20 @@ export interface Message {
 }
 
 export interface ProgressUpdate {
-  id: number;
+  id: string;
   title: string;
   description: string;
   timestamp: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'blocked';
+  status: 'completed' | 'in-progress' | 'pending';
 }
 
 export interface Task {
-  id: number;
+  id: string;
   title: string;
   description: string;
-  status: TaskStatus;
-  priority: TaskPriority;
+  status: 'in_progress' | 'completed' | 'waiting' | 'scheduled';
   agent: Agent;
   assignedAt: string;
-  dueDate?: string;
-  scheduledFor?: string;
   completedAt?: string;
   progress: number;
   messages: Message[];
