@@ -16,11 +16,21 @@ import {
 import { AgentAvatar } from "@/components/ui-custom/agent-avatar";
 import { TaskPriority } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { Switch } from '@/components/ui/switch'; 
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function ProcurementTaskAssignment() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isScheduled, setIsScheduled] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  
   
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<TaskPriority>(TaskPriority.MEDIUM);
@@ -107,22 +117,46 @@ export default function ProcurementTaskAssignment() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="priority">Priority Level</Label>
-                  <Select
-                    value={priority}
-                    onValueChange={(value) => setPriority(value as TaskPriority)}
-                  >
-                    <SelectTrigger className="mt-2">
-                      <SelectValue placeholder="Select priority" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={TaskPriority.LOW}>Low Priority</SelectItem>
-                      <SelectItem value={TaskPriority.MEDIUM}>Medium Priority</SelectItem>
-                      <SelectItem value={TaskPriority.HIGH}>High Priority</SelectItem>
-                    </SelectContent>
-                  </Select>
+               
+              <div className="flex items-center mb-6">
+                <Switch
+                  id="schedule"
+                  checked={isScheduled}
+                  onCheckedChange={setIsScheduled}
+                  className="mr-2"
+                />
+                <Label htmlFor="schedule">Schedule for later</Label>
+              </div>
+
+              {isScheduled && (
+                <div className="mb-6">
+                  <Label className="mb-2 block">Schedule Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !date && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {date ? format(date, "PPP") : "Select a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
+              )}
+
+                 
               </div>
 
               <div className="flex justify-end space-x-2">

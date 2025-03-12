@@ -253,11 +253,9 @@ export function ProcurementTaskDetail() {
               </div>
 
               {/* Task Details Section */}
-              <div className="space-y-6">
-                <div>
+              <div className="space-y-6"> 
                   <p className="text-sm text-muted-foreground mb-2">Description</p>
                   <p>{task.description}</p>
-                </div>
 
                 {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
                   <div>
@@ -305,18 +303,13 @@ export function ProcurementTaskDetail() {
               </div>
 
               {/* Divider */}
-              <div className="h-px bg-border my-6" />
-
-              {/* Chat Section */}
-              <div>
-                <p className="text-sm text-muted-foreground mb-4">Communication with Agent</p>
+               
                 <ChatWindow
                   agent={task.agent}
                   messages={messages}
                   onSendMessage={handleSendMessage}
                   isLoading={isLoading}
                 />
-              </div>
             </CardContent>
           </Card>
         </div>
