@@ -59,7 +59,11 @@ export default function ProcurementAgents() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight">Active Tasks</h2>
         {activeTasks.length > 0 ? (
-          <TaskList tasks={activeTasks} title="In Progress" />
+          <TaskList 
+            tasks={activeTasks} 
+            title="Active Tasks" 
+            variant="procurement"
+          />
         ) : (
           <Card>
             <div className="p-8 text-center">
@@ -76,7 +80,11 @@ export default function ProcurementAgents() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold tracking-tight">Task History</h2>
         {completedTasks.length > 0 ? (
-          <TaskList tasks={completedTasks} title="Completed Tasks" />
+          <TaskList 
+            tasks={completedTasks} 
+            title="Task History" 
+            variant="procurement"
+          />
         ) : (
           <Card>
             <div className="p-8 text-center">

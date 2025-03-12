@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Task } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,9 +11,16 @@ import { Link } from 'react-router-dom';
 interface TaskListProps {
   tasks: Task[];
   title: string;
+  variant?: 'ai-hub' | 'procurement';
 }
 
-export function TaskList({ tasks, title }: TaskListProps) {
+export function TaskList({ tasks, title, variant = 'ai-hub' }: TaskListProps) {
+  const getTaskDetailPath = (taskId: string) => {
+    return variant === 'procurement' 
+      ? `/procurement/tasks/${taskId}`
+      : `/task/${taskId}`;
+  };
+
   if (tasks.length === 0) {
     return (
       <div className="mb-8">
@@ -90,7 +96,7 @@ export function TaskList({ tasks, title }: TaskListProps) {
                 
                 <div className="flex justify-end">
                   <Button asChild variant="outline" size="sm">
-                    <Link to={`/task/${task.id}`}>
+                    <Link to={getTaskDetailPath(task.id)}>
                       View Details
                     </Link>
                   </Button>

@@ -15,6 +15,7 @@ import ProcurementHome from '@/pages/procurement/Home';
 import ProcurementAgents from '@/pages/procurement/Agents';
 import ProcurementAgentChat from '@/pages/procurement/AgentChat';
 import ProcurementTaskAssignment from '@/pages/procurement/TaskAssignment';
+import { ProcurementTaskDetail } from '@/pages/procurement/TaskDetail';
 
 // Work in Progress component for unfinished pages
 function WorkInProgress({ title }: { title: string }) {
@@ -47,6 +48,7 @@ function App() {
             {/* Procurement Routes */}
             <Route path="/procurement" element={<ProcurementHome />} />
             <Route path="/procurement/agents" element={<ProcurementAgents />} />
+            <Route path="/procurement/tasks/:id" element={<ProcurementTaskDetail />} />
             <Route 
               path="/procurement/purchases" 
               element={<WorkInProgress title="Purchases" />} 

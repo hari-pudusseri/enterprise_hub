@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui-custom/status-badge";
@@ -12,12 +11,19 @@ import { Link } from "react-router-dom";
 interface TaskCardProps {
   task: Task;
   className?: string;
+  variant?: 'ai-hub' | 'procurement';
 }
 
-export function TaskCard({ task, className }: TaskCardProps) {
+export function TaskCard({ task, className, variant = 'ai-hub' }: TaskCardProps) {
   const isCompletable = task.status === TaskStatus.IN_PROGRESS || task.status === TaskStatus.WAITING;
   const isCancellable = task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED;
   
+  const getTaskDetailPath = (taskId: string) => {
+    return variant === 'procurement' 
+      ? `/procurement/tasks/${taskId}`
+      : `/task/${taskId}`;
+  };
+
   return (
     <Card className={cn("overflow-hidden border transition-all duration-300 hover:shadow-md hover:translate-y-[-2px]", className)}>
       <CardContent className="p-4">
@@ -74,7 +80,7 @@ export function TaskCard({ task, className }: TaskCardProps) {
           className="flex-1"
           asChild
         >
-          <Link to={`/tasks/${task.id}`}>
+          <Link to={getTaskDetailPath(task.id)}>
             <ExternalLink className="mr-1 h-4 w-4" />
             View Details
           </Link>

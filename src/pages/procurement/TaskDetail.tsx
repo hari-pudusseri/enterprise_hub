@@ -1,252 +1,274 @@
-import { useParams, useNavigate } from 'react-router-dom';
-import { procurementTasks } from '@/data/procurement-tasks';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { AgentAvatar } from '@/components/ui-custom/agent-avatar';
-import { formatDateTime, formatCurrency } from '@/lib/utils';
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { PageHeader } from "@/components/layout/page-header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { AgentAvatar } from "@/components/ui-custom/agent-avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChatWindow } from "@/components/chat/chat-window";
 import { 
-  Calendar, 
-  Clock, 
-  AlertCircle, 
-  CheckCircle2, 
+  ArrowLeft, 
+  Calendar,
+  Clock,
+  CheckCircle2,
   XCircle,
-  Building2,
-  Receipt,
-  DollarSign,
-  Tags
-} from 'lucide-react';
-import { TaskStatus, TaskPriority } from '@/lib/types';
+  MessageSquare,
+  AlertCircle
+} from "lucide-react";
+import { getProcurementTask } from "@/data/procurement-tasks";
+import { TaskStatus, TaskPriority, Message } from "@/lib/types";
+import { formatDateTime } from "@/lib/utils";
 
-export default function ProcurementTaskDetail() {
-  const { id } = useParams<{ id: string }>();
+export function ProcurementTaskDetail() {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
-  const task = procurementTasks.find(t => String(t.id) === id);
+  const task = getProcurementTask(id || "");
   
   if (!task) {
-    return <div className="container mx-auto py-6 px-4">Task not found</div>;
+    return (
+      <div className="container mx-auto py-6 px-4">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate('/procurement/agents')}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Tasks
+        </Button>
+        <Card className="p-6 text-center">
+          <h2 className="text-xl font-semibold mb-2">Task Not Found</h2>
+          <p className="text-muted-foreground">The requested task could not be found.</p>
+        </Card>
+      </div>
+    );
   }
 
-  const getStatusColor = (status: TaskStatus) => {
-    switch (status) {
-      case TaskStatus.COMPLETED:
-        return 'bg-green-500/10 text-green-500';
-      case TaskStatus.IN_PROGRESS:
-        return 'bg-blue-500/10 text-blue-500';
-      case TaskStatus.WAITING:
-        return 'bg-yellow-500/10 text-yellow-500';
-      case TaskStatus.CANCELLED:
-        return 'bg-red-500/10 text-red-500';
-      default:
-        return 'bg-gray-500/10 text-gray-500';
+  const getStatusBadge = (status: TaskStatus) => {
+    const variants = {
+      [TaskStatus.COMPLETED]: "bg-green-500/10 text-green-500",
+      [TaskStatus.IN_PROGRESS]: "bg-blue-500/10 text-blue-500",
+      [TaskStatus.WAITING]: "bg-yellow-500/10 text-yellow-500",
+      [TaskStatus.CANCELLED]: "bg-red-500/10 text-red-500"
+    };
+    return variants[status] || "bg-gray-500/10 text-gray-500";
+  };
+
+  const getPriorityBadge = (priority: TaskPriority) => {
+    const variants = {
+      [TaskPriority.HIGH]: "bg-red-500/10 text-red-500",
+      [TaskPriority.MEDIUM]: "bg-yellow-500/10 text-yellow-500",
+      [TaskPriority.LOW]: "bg-green-500/10 text-green-500"
+    };
+    return variants[priority];
+  };
+
+  const handleSendMessage = async (content: string) => {
+    if (!task) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content,
+      sender: 'user',
+      timestamp: new Date().toISOString(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const agentMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `I'm processing your request regarding: ${content}`,
+        sender: 'agent',
+        timestamp: new Date().toISOString(),
+      };
+      
+      setMessages(prev => [...prev, agentMessage]);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const getPriorityColor = (priority: TaskPriority) => {
-    switch (priority) {
-      case TaskPriority.HIGH:
-        return 'bg-red-500/10 text-red-500';
-      case TaskPriority.MEDIUM:
-        return 'bg-yellow-500/10 text-yellow-500';
-      case TaskPriority.LOW:
-        return 'bg-green-500/10 text-green-500';
-    }
+  const handleCancelTask = () => {
+    // Add task cancellation logic here
+  };
+
+  const handleCompleteTask = () => {
+    // Add task completion logic here
   };
 
   return (
     <div className="container mx-auto py-6 px-4">
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-2/3 space-y-6">
-          {/* Main Task Information */}
-          <Card>
-            <CardHeader className="p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div className="space-y-1">
-                  <CardTitle>{task.title}</CardTitle>
-                  <div className="text-sm text-muted-foreground">
-                    Task ID: {task.id}
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <Badge className={getStatusColor(task.status)}>
-                    {task.status}
-                  </Badge>
-                  <Badge className={getPriorityColor(task.priority)}>
-                    {task.priority} Priority
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  Assigned: {formatDateTime(task.assignedAt)}
-                </div>
-                {task.dueDate && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    Due: {formatDateTime(task.dueDate)}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                <AgentAvatar agent={task.agent} />
-                <div>
-                  <div className="font-medium">{task.agent.name}</div>
-                  <div className="text-sm text-muted-foreground">Assigned Agent</div>
-                </div>
-              </div>
-            </CardHeader>
-
-            <CardContent className="p-6 pt-0">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Description</h3>
-                  <p className="text-muted-foreground">{task.description}</p>
-                </div>
-
-                {/* Procurement Specific Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted/50 rounded-lg">
-                  {task.supplierName && (
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm font-medium">Supplier</div>
-                        <div className="text-sm text-muted-foreground">{task.supplierName}</div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {task.purchaseOrderNumber && (
-                    <div className="flex items-center gap-2">
-                      <Receipt className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm font-medium">PO Number</div>
-                        <div className="text-sm text-muted-foreground">{task.purchaseOrderNumber}</div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {task.budget && (
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm font-medium">Budget</div>
-                        <div className="text-sm text-muted-foreground">{formatCurrency(task.budget)}</div>
-                      </div>
-                    </div>
-                  )}
-                  
-                  {task.category && (
-                    <div className="flex items-center gap-2">
-                      <Tags className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <div className="text-sm font-medium">Category</div>
-                        <div className="text-sm text-muted-foreground">
-                          {task.category.split('-').map(word => 
-                            word.charAt(0).toUpperCase() + word.slice(1)
-                          ).join(' ')}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Progress Updates */}
-          <Card>
-            <CardHeader className="p-6">
-              <CardTitle>Progress Updates</CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 pt-0">
-              <div className="space-y-4">
-                {task.progressUpdates.map((update) => (
-                  <div key={update.id} className="flex gap-4">
-                    <div className="mt-1">
-                      {update.status === 'completed' && (
-                        <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      )}
-                      {update.status === 'in-progress' && (
-                        <AlertCircle className="h-5 w-5 text-blue-500" />
-                      )}
-                      {update.status === 'blocked' && (
-                        <XCircle className="h-5 w-5 text-red-500" />
-                      )}
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="font-medium">{update.title}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {update.description}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatDateTime(update.timestamp)}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Chat History */}
-        <div className="lg:w-1/3">
-          <Card className="h-[calc(100vh-160px)]">
-            <CardHeader className="p-6 border-b">
-              <CardTitle>Communication History</CardTitle>
-            </CardHeader>
-            <ScrollArea className="h-[calc(100%-76px)]">
-              <CardContent className="p-6">
-                {task.messages.length > 0 ? (
-                  <div className="space-y-4">
-                    {task.messages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${
-                          message.sender === 'user' ? 'justify-end' : 'justify-start'
-                        }`}
-                      >
-                        <div
-                          className={`max-w-[80%] rounded-lg p-3 ${
-                            message.sender === 'user'
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted'
-                          }`}
-                        >
-                          <div className="text-sm mb-1">
-                            {message.sender === 'user' ? 'You' : task.agent.name}
-                          </div>
-                          <div className="text-sm">{message.content}</div>
-                          <div className="text-xs mt-1 opacity-70">
-                            {formatDateTime(message.timestamp)}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground">
-                    No messages yet
-                  </div>
-                )}
-              </CardContent>
-            </ScrollArea>
-          </Card>
-        </div>
+      <div className="flex items-center gap-4 mb-6">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate('/procurement/agents')}
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <PageHeader
+          title={task.title}
+          description="Task Details"
+        />
       </div>
 
-      <div className="mt-6">
-        <Button
-          variant="outline"
-          onClick={() => navigate('/procurement')}
-        >
-          Back to Procurement Hub
-        </Button>
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Task Information</CardTitle>
+                <div className="flex gap-2">
+                  {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleCompleteTask}
+                      >
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Complete
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleCancelTask}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Cancel
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="font-medium mb-2">Description</h3>
+                <p className="text-muted-foreground">{task.description}</p>
+              </div>
+
+              {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
+                <div>
+                  <h3 className="font-medium mb-2">Progress</h3>
+                  <Progress value={task.progress} className="mb-2" />
+                  <p className="text-sm text-muted-foreground">{task.progress}% complete</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-medium mb-2">Status</h3>
+                  <Badge className={getStatusBadge(task.status)}>
+                    {task.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Priority</h3>
+                  <Badge className={getPriorityBadge(task.priority)}>
+                    {task.priority}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <h3 className="font-medium">Start Date</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDateTime(task.assignedAt)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <h3 className="font-medium">Due Date</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDateTime(task.dueDate)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Communication</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ChatWindow
+                agent={task.agent}
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                isLoading={isLoading}
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Assigned Agent</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-3 mb-4">
+                <AgentAvatar
+                  name={task.agent.name}
+                  avatar={task.agent.avatar}
+                  status={task.agent.status}
+                  size="lg"
+                  showStatus
+                />
+                <div>
+                  <h3 className="font-medium">{task.agent.name}</h3>
+                  <p className="text-sm text-muted-foreground">Procurement Agent</p>
+                </div>
+              </div>
+              <Button className="w-full" asChild>
+                <a href={`/procurement/agent/${task.agent.id}/chat`}>
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Contact Agent
+                </a>
+              </Button>
+            </CardContent>
+          </Card>
+
+          {task.metadata && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Additional Details</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Object.entries(task.metadata).map(([key, value]) => (
+                  <div key={key}>
+                    <h3 className="font-medium mb-1 capitalize">
+                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {value.toString()}
+                    </p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </div>
   );
