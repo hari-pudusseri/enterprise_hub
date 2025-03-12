@@ -17,8 +17,8 @@ interface TaskListProps {
 export function TaskList({ tasks, title, variant = 'ai-hub' }: TaskListProps) {
   const getTaskDetailPath = (taskId: string) => {
     return variant === 'procurement' 
-      ? `/procurement/tasks/${taskId}`
-      : `/task/${taskId}`;
+      ? `/procurement/tasks/${taskId.toString()}`
+      : `/task/${taskId.toString()}`;
   };
 
   if (tasks.length === 0) {

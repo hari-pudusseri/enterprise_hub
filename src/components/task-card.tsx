@@ -20,8 +20,8 @@ export function TaskCard({ task, className, variant = 'ai-hub' }: TaskCardProps)
   
   const getTaskDetailPath = (taskId: string) => {
     return variant === 'procurement' 
-      ? `/procurement/tasks/${taskId}`
-      : `/task/${taskId}`;
+      ? `/procurement/tasks/${taskId.toString()}`
+      : `/task/${taskId.toString()}`;
   };
 
   return (

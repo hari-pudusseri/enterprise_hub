@@ -155,6 +155,71 @@ export const procurementTasks: ProcurementTask[] = [
         timestamp: '2024-03-10T16:30:00Z'
       }
     ]
+  },
+  {
+    id: "p1",
+    title: "Review Purchase Order #PO-2024-001",
+    description: "Review and approve purchase order for office supplies",
+    status: TaskStatus.IN_PROGRESS,
+    priority: TaskPriority.HIGH,
+    progress: 65,
+    agent: procurementAgents[0],
+    assignedAt: new Date("2024-03-10").toISOString(),
+    dueDate: new Date("2024-03-15").toISOString(),
+    metadata: {
+      purchaseOrderNumber: "PO-2024-001",
+      supplier: "Office Supplies Co.",
+      totalAmount: "$5,432.10"
+    }
+  },
+  {
+    id: "p2",
+    title: "Supplier Contract Negotiation",
+    description: "Negotiate new contract terms with primary supplier",
+    status: TaskStatus.WAITING,
+    priority: TaskPriority.MEDIUM,
+    progress: 30,
+    agent: procurementAgents[1],
+    assignedAt: new Date("2024-03-11").toISOString(),
+    dueDate: new Date("2024-03-20").toISOString(),
+    metadata: {
+      supplierName: "Tech Solutions Inc.",
+      contractValue: "$50,000",
+      renewalPeriod: "12 months"
+    }
+  },
+  {
+    id: "p3",
+    title: "Process Invoice Batch #INV-2024-Q1",
+    description: "Process and approve Q1 invoice batch",
+    status: TaskStatus.COMPLETED,
+    priority: TaskPriority.LOW,
+    progress: 100,
+    agent: procurementAgents[2],
+    assignedAt: new Date("2024-03-01").toISOString(),
+    completedAt: new Date("2024-03-08").toISOString(),
+    dueDate: new Date("2024-03-10").toISOString(),
+    metadata: {
+      batchNumber: "INV-2024-Q1",
+      invoiceCount: "15",
+      totalValue: "$12,345.67"
+    }
+  },
+  {
+    id: "p4",
+    title: "Vendor Compliance Review",
+    description: "Conduct quarterly vendor compliance review and documentation",
+    status: TaskStatus.IN_PROGRESS,
+    priority: TaskPriority.MEDIUM,
+    progress: 45,
+    agent: procurementAgents[0],
+    assignedAt: new Date("2024-03-12").toISOString(),
+    dueDate: new Date("2024-03-25").toISOString(),
+    metadata: {
+      vendorCount: "12",
+      complianceType: "Quarterly Review",
+      department: "Supply Chain"
+    }
   }
 ];
 
@@ -317,5 +382,9 @@ export const getCompletedProcurementTasks = () => {
   return completedProcurementTasks;
 };
 
-export const getProcurementTask = (id: string) =>
-  procurementTasks.find(task => task.id === id); 
+export const getProcurementTask = (id: string) => {
+  // Add some debug logging
+  console.log('Looking for task with ID:', id);
+  console.log('Available task IDs:', procurementTasks.map(t => t.id));
+  return procurementTasks.find(task => task.id === id);
+}; 

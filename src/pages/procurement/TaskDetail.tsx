@@ -28,7 +28,7 @@ export function ProcurementTaskDetail() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  const task = getProcurementTask(id || "");
+  const task = getProcurementTask(id?.toString() || "");
   
   if (!task) {
     return (
