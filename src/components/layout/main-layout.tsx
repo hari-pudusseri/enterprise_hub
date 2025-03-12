@@ -228,7 +228,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                   >
                     <div className="flex items-center">
                       <Bot className="h-5 w-5 mr-2" />
-                      <span className="font-medium">Agent Hub</span>
+                      <span className="font-medium">Agents</span>
                     </div>
                     <ChevronDown className={cn(
                       "h-4 w-4 transition-transform",
