@@ -21,6 +21,15 @@ import {
 import { getProcurementTask } from "@/data/procurement-tasks";
 import { TaskStatus, TaskPriority, Message } from "@/lib/types";
 import { formatDateTime } from "@/lib/utils";
+import { format } from "date-fns";
+
+interface ProgressUpdate {
+  id: string;
+  title: string;
+  description: string;
+  status: 'completed' | 'pending' | 'blocked';
+  timestamp: string;
+}
 
 export function ProcurementTaskDetail() {
   const { id } = useParams();
@@ -107,6 +116,50 @@ export function ProcurementTaskDetail() {
     // Add task completion logic here
   };
 
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+      case 'pending':
+        return <Clock className="h-4 w-4 text-yellow-500" />;
+      case 'blocked':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      default:
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const progressUpdates: ProgressUpdate[] = [
+    {
+      id: '1',
+      title: 'Task Created',
+      description: 'Task assigned to procurement agent',
+      status: 'completed',
+      timestamp: '2024-03-12T09:00:00Z'
+    },
+    {
+      id: '2',
+      title: 'Initial Assessment',
+      description: 'Reviewing requirements and scope',
+      status: 'completed',
+      timestamp: '2024-03-12T09:30:00Z'
+    },
+    {
+      id: '3',
+      title: 'Vendor Selection',
+      description: 'Evaluating potential suppliers',
+      status: 'pending',
+      timestamp: '2024-03-12T10:00:00Z'
+    },
+    {
+      id: '4',
+      title: 'Price Negotiation',
+      description: 'Awaiting vendor response',
+      status: 'blocked',
+      timestamp: '2024-03-12T11:00:00Z'
+    }
+  ];
+
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex items-center gap-4 mb-6">
@@ -124,150 +177,187 @@ export function ProcurementTaskDetail() {
         />
       </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Task Information</CardTitle>
-                <div className="flex gap-2">
-                  {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
-                    <>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={handleCompleteTask}
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Complete
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={handleCancelTask}
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Cancel
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="font-medium mb-2">Description</h3>
-                <p className="text-muted-foreground">{task.description}</p>
-              </div>
-
-              {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
-                <div>
-                  <h3 className="font-medium mb-2">Progress</h3>
-                  <Progress value={task.progress} className="mb-2" />
-                  <p className="text-sm text-muted-foreground">{task.progress}% complete</p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium mb-2">Status</h3>
-                  <Badge className={getStatusBadge(task.status)}>
-                    {task.status.replace('_', ' ')}
-                  </Badge>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Priority</h3>
-                  <Badge className={getPriorityBadge(task.priority)}>
-                    {task.priority}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <h3 className="font-medium">Start Date</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDateTime(task.assignedAt)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <h3 className="font-medium">Due Date</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDateTime(task.dueDate)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Communication</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ChatWindow
-                agent={task.agent}
-                messages={messages}
-                onSendMessage={handleSendMessage}
-                isLoading={isLoading}
+      {/* Top Summary Cards */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-3 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <AgentAvatar
+                name={task.agent.name}
+                avatar={task.agent.avatar}
+                status={task.agent.status}
+                size="sm"
+                showStatus
               />
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Assigned Agent</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3 mb-4">
-                <AgentAvatar
-                  name={task.agent.name}
-                  avatar={task.agent.avatar}
-                  status={task.agent.status}
-                  size="lg"
-                  showStatus
-                />
-                <div>
-                  <h3 className="font-medium">{task.agent.name}</h3>
-                  <p className="text-sm text-muted-foreground">Procurement Agent</p>
-                </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-sm truncate">{task.agent.name}</h3>
+                <p className="text-xs text-muted-foreground">Assigned Agent</p>
               </div>
-              <Button className="w-full" asChild>
+              <Button variant="ghost" size="icon" asChild>
                 <a href={`/procurement/agent/${task.agent.id}/chat`}>
-                  <MessageSquare className="h-4 w-4 mr-2" />
-                  Contact Agent
+                  <MessageSquare className="h-4 w-4" />
                 </a>
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </CardContent>
+        </Card>
 
-          {task.metadata && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Additional Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+        {task.metadata && (
+          <Card className="col-span-2">
+            <CardContent className="p-4">
+              <div className="flex gap-4 flex-wrap">
                 {Object.entries(task.metadata).map(([key, value]) => (
-                  <div key={key}>
-                    <h3 className="font-medium mb-1 capitalize">
+                  <div key={key} className="flex-1 min-w-[150px]">
+                    <p className="text-xs text-muted-foreground capitalize">
                       {key.replace(/([A-Z])/g, ' $1').trim()}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
+                    </p>
+                    <p className="font-medium text-sm truncate">
                       {value.toString()}
                     </p>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+        {/* Task Info and Communication - Left Side */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardContent className="p-6">
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 mb-6">
+                {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleCompleteTask}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Complete
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleCancelTask}
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {/* Task Details Section */}
+              <div className="space-y-6">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-2">Description</p>
+                  <p>{task.description}</p>
+                </div>
+
+                {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Progress</p>
+                    <Progress value={task.progress} className="mb-2" />
+                    <p className="text-sm text-muted-foreground">{task.progress}% complete</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Status</p>
+                    <Badge className={getStatusBadge(task.status)}>
+                      {task.status.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Priority</p>
+                    <Badge className={getPriorityBadge(task.priority)}>
+                      {task.priority}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Start Date</p>
+                      <p className="text-sm">
+                        {formatDateTime(task.assignedAt)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm text-muted-foreground">Due Date</p>
+                      <p className="text-sm">
+                        {formatDateTime(task.dueDate)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="h-px bg-border my-6" />
+
+              {/* Chat Section */}
+              <div>
+                <p className="text-sm text-muted-foreground mb-4">Communication with Agent</p>
+                <ChatWindow
+                  agent={task.agent}
+                  messages={messages}
+                  onSendMessage={handleSendMessage}
+                  isLoading={isLoading}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Progress Timeline - Right Side */}
+        <div>
+          <Card className="sticky top-6">
+            <CardHeader className="pb-3">
+              <p className="text-sm text-muted-foreground">Progress Timeline</p>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[calc(100vh-300px)] pr-4">
+                <div className="space-y-4">
+                  {progressUpdates.map((update) => (
+                    <div key={update.id} className="flex gap-3">
+                      <div className="mt-1">
+                        {getStatusIcon(update.status)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-medium text-sm">{update.title}</h4>
+                          <span className="text-xs text-muted-foreground">
+                            {format(new Date(update.timestamp), 'HH:mm')}
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {update.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {progressUpdates.length === 0 && (
+                    <div className="text-center text-muted-foreground text-sm">
+                      No updates yet
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
