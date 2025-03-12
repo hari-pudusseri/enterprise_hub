@@ -10,18 +10,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Plus, Receipt } from "lucide-react";
+import { Search, Filter, Plus, Building } from "lucide-react";
 
-export default function Invoices() {
+export default function Suppliers() {
   return (
     <div>
       <PageHeader
-        title="Invoices"
-        description="Track and manage supplier invoices"
+        title="Suppliers"
+        description="Manage your supplier relationships"
         action={
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            New Invoice
+            Add Supplier
           </Button>
         }
       />
@@ -29,7 +29,7 @@ export default function Invoices() {
       <div className="space-y-4">
         <div className="flex items-center gap-4">
           <Input
-            placeholder="Search invoices..."
+            placeholder="Search suppliers..."
             className="max-w-sm"
             type="search"
           />
@@ -42,25 +42,21 @@ export default function Invoices() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Invoice Number</TableHead>
-                <TableHead>Supplier</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Amount</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Category</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell className="font-medium">INV-2024-001</TableCell>
-                <TableCell>Acme Supplies</TableCell>
-                <TableCell>Mar 1, 2024</TableCell>
-                <TableCell>Mar 31, 2024</TableCell>
-                <TableCell>$1,234.56</TableCell>
+                <TableCell className="font-medium">Acme Supplies</TableCell>
+                <TableCell>Office Supplies</TableCell>
                 <TableCell>
-                  <Badge variant="secondary">Pending</Badge>
+                  <Badge variant="secondary">Active</Badge>
                 </TableCell>
+                <TableCell>john@acme.com</TableCell>
                 <TableCell>
                   <Button variant="ghost" size="sm">View</Button>
                 </TableCell>

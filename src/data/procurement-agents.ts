@@ -7,22 +7,36 @@ export interface ProcurementAgent {
   rating: number;
   tasksCompleted: number;
   skills: { id: number; name: string; }[];
+  lastActiveAt: Date;
+  createdAt: Date;
+  community: {
+    followers: number;
+    rating: number;
+    reviews: number;
+  };
 }
 
 export const procurementAgents: ProcurementAgent[] = [
   {
     id: 'p1',
-    name: "Supplier Onboarding Agent",
-    description: "Automates supplier onboarding process and verification",
-    status: "available",
-    avatar: "/agents/onboarding.png",
-    rating: 4.5,
-    tasksCompleted: 128,
+    name: "ProcureBot Alpha",
+    description: "Specialized in purchase order processing and vendor management",
+    status: "online",
+    avatar: "/avatars/procurement-1.png",
+    rating: 4.8,
+    tasksCompleted: 156,
     skills: [
-      { id: 1, name: "Supplier Verification" },
-      { id: 2, name: "Document Processing" },
-      { id: 3, name: "Risk Assessment" }
-    ]
+      { id: 1, name: "Purchase Orders" },
+      { id: 2, name: "Vendor Management" },
+      { id: 3, name: "Contract Review" }
+    ],
+    lastActiveAt: new Date(),
+    createdAt: new Date('2024-01-01'),
+    community: {
+      followers: 245,
+      rating: 4.8,
+      reviews: 89
+    }
   },
   {
     id: 'p2',
@@ -36,7 +50,14 @@ export const procurementAgents: ProcurementAgent[] = [
       { id: 4, name: "Contract Review" },
       { id: 5, name: "Legal Compliance" },
       { id: 6, name: "Renewal Management" }
-    ]
+    ],
+    lastActiveAt: new Date(),
+    createdAt: new Date('2024-01-01'),
+    community: {
+      followers: 245,
+      rating: 4.8,
+      reviews: 89
+    }
   },
   {
     id: 'p3',
@@ -50,6 +71,13 @@ export const procurementAgents: ProcurementAgent[] = [
       { id: 7, name: "Supplier Selection" },
       { id: 8, name: "Price Comparison" },
       { id: 9, name: "Purchase Optimization" }
-    ]
+    ],
+    lastActiveAt: new Date(),
+    createdAt: new Date('2024-01-01'),
+    community: {
+      followers: 245,
+      rating: 4.8,
+      reviews: 89
+    }
   }
 ]; 

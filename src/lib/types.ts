@@ -67,3 +67,21 @@ export interface Task {
   messages: Message[];
   progressUpdates: ProgressUpdate[];
 }
+
+export interface ProcurementAgent extends Agent {
+  id: string;
+  name: string;
+  description: string;
+  avatar: string;
+  status: AgentStatus;
+  skills: Skill[];
+  rating: number;
+  tasksCompleted: number;
+  lastActiveAt: Date;
+  createdAt: Date;
+  community: {
+    followers: number;
+    rating: number;
+    reviews: number;
+  };
+}

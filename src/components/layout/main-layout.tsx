@@ -8,55 +8,59 @@ import {
   Users,
   CheckSquare,
   History,
-  SettingsIcon,
+  Settings,
   Menu,
   X,
   ChevronDown,
   Bot,
-  Building2,
-  ShoppingCart,
+  Building,
+  ShoppingBag,
   FileText,
   Receipt,
-  Home,
-  FileContract,
-  ClipboardList
+  Home
 } from "lucide-react";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
-const navItems: NavItem[] = [
+const procurementNavItems = [
   {
     title: "Home",
     href: "/procurement",
-    icon: Home,
+    icon: Home
   },
   {
     title: "Agents",
     href: "/procurement/agents",
-    icon: Users,
+    icon: Bot
   },
   {
-    title: "Purchases",
-    href: "/procurement/purchases",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Suppliers",
-    href: "/procurement/suppliers",
-    icon: Building2,
-  },
-  {
-    title: "Contracts",
-    href: "/procurement/contracts",
+    title: "Documents",
     icon: FileText,
-  },
-  {
-    title: "Invoices",
-    href: "/procurement/invoices",
-    icon: Receipt,
-  },
+    items: [
+      {
+        title: "Purchases",
+        href: "/procurement/documents/purchase-orders",
+        icon: ShoppingBag
+      },
+      {
+        title: "Suppliers",
+        href: "/procurement/documents/suppliers",
+        icon: Building
+      },
+      {
+        title: "Contracts",
+        href: "/procurement/documents/contracts",
+        icon: FileText
+      },
+      {
+        title: "Invoices",
+        href: "/procurement/documents/invoices",
+        icon: Receipt
+      }
+    ]
+  }
 ];
 
 export function MainLayout({ children }: MainLayoutProps) {
@@ -64,6 +68,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   const [agentHubOpen, setAgentHubOpen] = useState(true);
   const [procurementOpen, setProcurementOpen] = useState(true);
   const location = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
 
   const agentHubItems = [
     {
@@ -89,7 +94,7 @@ export function MainLayout({ children }: MainLayoutProps) {
     {
       name: "Settings",
       path: "/settings",
-      icon: SettingsIcon,
+      icon: Settings,
     },
   ];
 
@@ -107,12 +112,12 @@ export function MainLayout({ children }: MainLayoutProps) {
     {
       name: "Purchases",
       path: "/procurement/purchases",
-      icon: ShoppingCart,
+      icon: ShoppingBag,
     },
     {
       name: "Suppliers",
       path: "/procurement/suppliers",
-      icon: Building2,
+      icon: Building,
     },
     {
       name: "Contracts",
@@ -125,6 +130,55 @@ export function MainLayout({ children }: MainLayoutProps) {
       icon: Receipt,
     },
   ];
+
+  const renderNavItem = (item: any, isNested = false) => {
+    // If the item has subitems, render a collapsible section
+    if (item.items) {
+      return (
+        <div key={item.title} className="space-y-1">
+          <div
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+              "hover:bg-accent hover:text-accent-foreground",
+              "cursor-pointer"
+            )}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {item.icon && <item.icon className="h-4 w-4" />}
+            <span>{item.title}</span>
+            <ChevronDown 
+              className={cn(
+                "ml-auto h-4 w-4 transition-transform",
+                isOpen && "rotate-180"
+              )} 
+            />
+          </div>
+          {isOpen && (
+            <div className="ml-4 space-y-1">
+              {item.items.map((subItem: any) => renderNavItem(subItem, true))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Otherwise render a regular nav link
+    return (
+      <Link
+        key={item.href}
+        to={item.href}
+        className={cn(
+          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
+          "hover:bg-accent hover:text-accent-foreground",
+          location.pathname === item.href && "bg-accent text-accent-foreground",
+          isNested && "ml-4"
+        )}
+      >
+        {item.icon && <item.icon className="h-4 w-4" />}
+        <span>{item.title}</span>
+      </Link>
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -213,7 +267,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                     onClick={() => setProcurementOpen(!procurementOpen)}
                   >
                     <div className="flex items-center">
-                      <ShoppingCart className="h-5 w-5 mr-2" />
+                      <ShoppingBag className="h-5 w-5 mr-2" />
                       <span className="font-medium">Procurement</span>
                     </div>
                     <ChevronDown className={cn(
@@ -224,23 +278,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                   
                   {procurementOpen && (
                     <ul className="mt-1 space-y-1 pl-7">
-                      {procurementItems.map((item) => (
-                        <li key={item.path}>
-                          <Link
-                            to={item.path}
-                            className={cn(
-                              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary",
-                              location.pathname === item.path
-                                ? "bg-secondary text-accent"
-                                : "text-foreground"
-                            )}
-                            onClick={() => setSidebarOpen(false)}
-                          >
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.name}</span>
-                          </Link>
-                        </li>
-                      ))}
+                      {procurementNavItems.map(item => renderNavItem(item))}
                     </ul>
                   )}
                 </div>

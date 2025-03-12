@@ -16,6 +16,11 @@ import ProcurementAgents from '@/pages/procurement/Agents';
 import ProcurementAgentChat from '@/pages/procurement/AgentChat';
 import ProcurementTaskAssignment from '@/pages/procurement/TaskAssignment';
 import { ProcurementTaskDetail } from '@/pages/procurement/TaskDetail';
+import PurchaseOrders from '@/pages/procurement/documents/PurchaseOrders';
+import Suppliers from '@/pages/procurement/documents/Suppliers';
+import Contracts from '@/pages/procurement/documents/Contracts';
+import Invoices from '@/pages/procurement/documents/Invoices';
+import Documents from '@/pages/procurement/Documents';
 
 // Work in Progress component for unfinished pages
 function WorkInProgress({ title }: { title: string }) {
@@ -46,27 +51,22 @@ function App() {
             <Route path="/settings" element={<Settings />} />
 
             {/* Procurement Routes */}
-            <Route path="/procurement" element={<ProcurementHome />} />
-            <Route path="/procurement/agents" element={<ProcurementAgents />} />
-            <Route path="/procurement/tasks/:id" element={<ProcurementTaskDetail />} />
-            <Route 
-              path="/procurement/purchases" 
-              element={<WorkInProgress title="Purchases" />} 
-            />
-            <Route 
-              path="/procurement/suppliers" 
-              element={<WorkInProgress title="Suppliers" />} 
-            />
-            <Route 
-              path="/procurement/contracts" 
-              element={<WorkInProgress title="Contracts" />} 
-            />
-            <Route 
-              path="/procurement/invoices" 
-              element={<WorkInProgress title="Invoices" />} 
-            />
-            <Route path="/procurement/agent/:id/chat" element={<ProcurementAgentChat />} />
-            <Route path="/procurement/agent/:id/task" element={<ProcurementTaskAssignment />} />
+            <Route path="/procurement">
+              <Route index element={<ProcurementHome />} />
+              <Route path="agents" element={<ProcurementAgents />} />
+              <Route path="tasks/:id" element={<ProcurementTaskDetail />} />
+              <Route path="agent/:id/chat" element={<ProcurementAgentChat />} />
+              <Route path="agent/:id/task" element={<ProcurementTaskAssignment />} />
+              
+              {/* Document Routes */}
+              <Route path="documents">
+                <Route index element={<Documents />} />
+                <Route path="purchase-orders" element={<PurchaseOrders />} />
+                <Route path="suppliers" element={<Suppliers />} />
+                <Route path="contracts" element={<Contracts />} />
+                <Route path="invoices" element={<Invoices />} />
+              </Route>
+            </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
