@@ -1,3 +1,6 @@
+// Add debug logging to verify type definitions
+console.log('Type Definitions Loaded');
+
 export enum AgentStatus {
   AVAILABLE = "available",
   BUSY = "busy",
@@ -5,17 +8,16 @@ export enum AgentStatus {
 }
 
 export enum TaskStatus {
-  SCHEDULED = "scheduled",
-  IN_PROGRESS = "in-progress",
-  WAITING = "waiting",
-  COMPLETED = "completed",
-  CANCELLED = "cancelled"
+  WAITING = "WAITING",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED"
 }
 
 export enum TaskPriority {
-  LOW = "low",
-  MEDIUM = "medium",
-  HIGH = "high"
+  LOW = "LOW",
+  MEDIUM = "MEDIUM",
+  HIGH = "HIGH"
 }
 
 export interface Skill {
@@ -25,7 +27,7 @@ export interface Skill {
 }
 
 export interface Agent {
-  id: number;
+  id: string;
   name: string;
   avatar: string;
   description: string;
@@ -33,7 +35,7 @@ export interface Agent {
   rating: number;
   status: AgentStatus;
   tasksCompleted: number;
-  createdAt: string;
+  createdAt: Date;
   community: {
     usage: number;
     rating: number;
@@ -41,9 +43,9 @@ export interface Agent {
 }
 
 export interface Message {
-  id: number;
-  sender: 'user' | 'agent';
+  id: string;
   content: string;
+  sender: 'user' | 'agent';
   timestamp: string;
 }
 
@@ -59,29 +61,28 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  status: 'in_progress' | 'completed' | 'waiting' | 'scheduled';
+  status: TaskStatus;
+  priority: TaskPriority;
+  progress: number;
   agent: Agent;
   assignedAt: string;
+  dueDate?: string;
   completedAt?: string;
-  progress: number;
   messages: Message[];
-  progressUpdates: ProgressUpdate[];
 }
 
 export interface ProcurementAgent extends Agent {
-  id: string;
-  name: string;
-  description: string;
-  avatar: string;
-  status: AgentStatus;
-  skills: Skill[];
-  rating: number;
-  tasksCompleted: number;
-  lastActiveAt: Date;
-  createdAt: Date;
-  community: {
-    followers: number;
-    rating: number;
-    reviews: number;
-  };
+  specialization: string;
+  certifications?: string[];
+  procurementExperience: number;
 }
+
+// Log the interface structures
+console.log('Agent Interface:', {
+  type: 'Agent',
+  structure: {
+    id: 'string',
+    name: 'string',
+    // ... other fields
+  }
+});

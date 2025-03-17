@@ -382,9 +382,22 @@ export const getCompletedProcurementTasks = () => {
   return completedProcurementTasks;
 };
 
-export const getProcurementTask = (id: string) => {
-  // Add some debug logging
-  console.log('Looking for task with ID:', id);
-  console.log('Available task IDs:', procurementTasks.map(t => t.id));
-  return procurementTasks.find(task => task.id === id);
-}; 
+export function getProcurementTask(id: string) {
+  try {
+    const task = procurementTasks.find(t => t.id === id);
+    console.log('Fetched Task:', task);
+    
+    if (!task) {
+      console.warn('Task not found:', id);
+      return null;
+    }
+
+    // Log the agent data structure
+    console.log('Task Agent Data:', task.agent);
+    
+    return task;
+  } catch (error) {
+    console.error('Error fetching procurement task:', error);
+    return null;
+  }
+} 

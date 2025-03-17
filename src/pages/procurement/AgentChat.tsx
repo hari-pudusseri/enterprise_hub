@@ -9,6 +9,7 @@ import { AgentAvatar } from "@/components/ui-custom/agent-avatar";
 import { Avatar } from "@/components/ui/avatar";
 import { Send, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ProgressUpdates } from "@/components/chat/progress-updates";
 
 export default function ProcurementAgentChat() {
   const { id } = useParams<{ id: string }>();
@@ -35,13 +36,13 @@ export default function ProcurementAgentChat() {
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-2/3">
+        <div className="lg:w-1/3">
           <Card className="h-[calc(100vh-160px)]">
             <CardHeader className="p-4 border-b">
               <div className="flex items-center">
                 <AgentAvatar agent={agent} className="mr-3" />
                 <div>
-                  <CardTitle>{agent.name}</CardTitle>
+                  <h3 className="font-medium">{agent.name}</h3>
                   <div className="text-sm text-muted-foreground">
                     {agent.status}
                   </div>
@@ -77,31 +78,32 @@ export default function ProcurementAgentChat() {
           </Card>
         </div>
         
-        <div className="lg:w-1/3">
+        <div className="lg:w-2/3">
           <Card>
-            <CardHeader>
-              <CardTitle>Agent Details</CardTitle>
+            <CardHeader className="p-4 border-b">
+              <h3 className="font-medium">Task Progress & Actions</h3>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Skills</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {agent.skills.map(skill => (
-                      <span key={skill.id} className="bg-secondary px-2 py-1 rounded text-xs">
-                        {skill.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-medium mb-2">Performance</h3>
-                  <div className="text-sm text-muted-foreground">
-                    <p>Rating: {agent.rating} / 5</p>
-                    <p>Tasks Completed: {agent.tasksCompleted}</p>
-                  </div>
-                </div>
-              </div>
+            <CardContent className="p-0">
+              <ProgressUpdates 
+                updates={[
+                  {
+                    id: '1',
+                    title: 'Conversation Started',
+                    description: 'Agent initialized and ready for task discussion',
+                    status: 'completed',
+                    timestamp: new Date().toISOString(),
+                    details: {
+                      type: 'system',
+                      metadata: {
+                        sessionId: 'session-123',
+                        agentVersion: '1.0'
+                      }
+                    }
+                  },
+                  // Add more detailed progress updates based on chat interactions
+                ]}
+                showDetails={true}
+              />
             </CardContent>
           </Card>
         </div>

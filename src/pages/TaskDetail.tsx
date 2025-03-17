@@ -1,237 +1,267 @@
-
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { tasks } from '@/data/agents';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDateTime, getPriorityDetails, getStatusDetails } from '@/lib/utils';
-import { AgentAvatar } from '@/components/ui-custom/agent-avatar';
-import { ProgressUpdate, TaskStatus } from '@/lib/types';
-import { Badge } from '@/components/ui/badge';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { ArrowLeft, Clock, MessageSquare, Calendar, XCircle } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { PageHeader } from "@/components/layout/page-header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { AgentAvatar } from "@/components/ui-custom/agent-avatar";
+import { ChatWindow } from "@/components/chat/chat-window";
+import { ProgressUpdates } from "@/components/chat/progress-updates";
+import { 
+  ArrowLeft, 
+  CheckCircle2,
+  XCircle,
+  MessageSquare
+} from "lucide-react";
+import { getTask, updateTaskMessages } from "@/data/tasks";
+import { TaskStatus, TaskPriority, Message } from "@/lib/types";
 
 export default function TaskDetail() {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Find the task by ID
-  const task = tasks.find(t => t.id === Number(id));
+  const task = getTask(id?.toString() || "");
+  
+  useEffect(() => {
+    if (task) {
+      setMessages(task.messages || []);
+    }
+  }, [task]);
   
   if (!task) {
     return (
       <div className="container mx-auto py-6 px-4">
-        <div className="flex items-center mb-6">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate('/')}
-            className="mr-2"
-          >
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">Task not found</h1>
-        </div>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => navigate('/tasks/active')}
+          className="mb-4"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Tasks
+        </Button>
+        <Card className="p-6 text-center">
+          <h2 className="text-xl font-semibold mb-2">Task Not Found</h2>
+          <p className="text-muted-foreground">The requested task could not be found.</p>
+        </Card>
       </div>
     );
   }
-  
-  const statusDetails = getStatusDetails(task.status);
-  const priorityDetails = getPriorityDetails(task.priority);
-  
-  const handleCancelTask = () => {
-    // In a real app, you would send this to an API
-    toast({
-      title: "Task cancelled",
-      description: `Task "${task.title}" has been cancelled`
-    });
+
+  const getStatusBadge = (status: TaskStatus) => {
+    const variants = {
+      [TaskStatus.COMPLETED]: "bg-green-500/10 text-green-500",
+      [TaskStatus.IN_PROGRESS]: "bg-blue-500/10 text-blue-500",
+      [TaskStatus.WAITING]: "bg-yellow-500/10 text-yellow-500",
+      [TaskStatus.CANCELLED]: "bg-red-500/10 text-red-500"
+    };
+    return variants[status] || "bg-gray-500/10 text-gray-500";
+  };
+
+  const getPriorityBadge = (priority: TaskPriority) => {
+    const variants = {
+      [TaskPriority.HIGH]: "bg-red-500/10 text-red-500",
+      [TaskPriority.MEDIUM]: "bg-yellow-500/10 text-yellow-500",
+      [TaskPriority.LOW]: "bg-green-500/10 text-green-500"
+    };
+    return variants[priority];
+  };
+
+  const handleSendMessage = async (content: string) => {
+    if (!task) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      content,
+      sender: 'user',
+      timestamp: new Date().toISOString(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
     
-    // Navigate back to home
-    navigate('/');
+    setIsLoading(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const agentMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        content: `I'm processing your request regarding: ${content}`,
+        sender: 'agent',
+        timestamp: new Date().toISOString(),
+      };
+      
+      setMessages(prev => [...prev, agentMessage]);
+      updateTaskMessages(task.id, userMessage);
+      updateTaskMessages(task.id, agentMessage);
+      
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelTask = () => {
+    // Add task cancellation logic here
+  };
+
+  const handleCompleteTask = () => {
+    // Add task completion logic here
   };
 
   return (
     <div className="container mx-auto py-6 px-4">
-      <div className="flex items-center mb-6">
+      <div className="flex items-center gap-4 mb-6">
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={() => navigate('/')}
-          className="mr-2"
+          onClick={() => navigate('/tasks/active')}
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
+          <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold">Task Details</h1>
+        <PageHeader
+          title={task.title}
+          description="Task Details"
+        />
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="p-6 pb-3">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <CardTitle className="mb-1">{task.title}</CardTitle>
-                  <div className="flex space-x-2 mb-3">
-                    <Badge className={`${statusDetails.bgColor} ${statusDetails.color}`}>
-                      {statusDetails.label}
-                    </Badge>
-                    <Badge className={priorityDetails.color}>
-                      {priorityDetails.label} Priority
-                    </Badge>
-                  </div>
-                </div>
-                
-                {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <XCircle className="h-4 w-4 mr-1" />
-                        Cancel Task
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Cancel this task?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. The task will be marked as cancelled and the agent will stop working on it.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Keep Task</AlertDialogCancel>
-                        <AlertDialogAction 
-                          onClick={handleCancelTask}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Cancel Task
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                )}
+
+      {/* Top Summary Cards */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-3 mb-6">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <AgentAvatar
+                name={task.agent.name}
+                avatar={task.agent.avatar}
+                status={task.agent.status}
+                size="sm"
+                showStatus
+              />
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium text-sm truncate">{task.agent.name}</h3>
+                <p className="text-xs text-muted-foreground">Assigned Agent</p>
               </div>
-              
-              <div className="flex items-center mb-3">
-                <AgentAvatar agent={task.agent} className="mr-2" />
-                <div className="text-sm">
-                  <div>Assigned to <span className="font-medium">{task.agent.name}</span></div>
-                </div>
+              <Button variant="ghost" size="icon" asChild>
+                <Link to={`/agent/${task.agent.id}/chat`}>
+                  <MessageSquare className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-2">
+          <CardContent className="p-4">
+            <div className="flex gap-4 flex-wrap">
+              <div className="flex-1 min-w-[150px]">
+                <p className="text-xs text-muted-foreground">Status</p>
+                <Badge className={getStatusBadge(task.status)}>
+                  {task.status.replace('_', ' ')}
+                </Badge>
               </div>
-              
-              <div className="flex flex-wrap gap-y-2 text-sm text-muted-foreground">
-                <div className="flex items-center mr-4">
-                  <Clock className="h-4 w-4 mr-1" />
-                  <span>Assigned: {formatDateTime(task.assignedAt)}</span>
-                </div>
-                
-                {task.dueDate && (
-                  <div className="flex items-center mr-4">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>Due: {formatDateTime(task.dueDate)}</span>
-                  </div>
-                )}
-                
-                {task.scheduledFor && (
-                  <div className="flex items-center mr-4">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>Scheduled: {formatDateTime(task.scheduledFor)}</span>
-                  </div>
-                )}
-                
-                {task.completedAt && (
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    <span>Completed: {formatDateTime(task.completedAt)}</span>
-                  </div>
-                )}
+              <div className="flex-1 min-w-[150px]">
+                <p className="text-xs text-muted-foreground">Priority</p>
+                <Badge className={getPriorityBadge(task.priority)}>
+                  {task.priority}
+                </Badge>
               </div>
+              <div className="flex-1 min-w-[150px]">
+                <p className="text-xs text-muted-foreground">Progress</p>
+                <Progress value={task.progress} className="mt-2" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+        {/* Task Details and Chat - Left Side */}
+        <div className="lg:w-full lg:col-span-1">
+          <Card className="h-[calc(100vh-300px)]">
+            <CardHeader className="p-4 border-b">
+              <h3 className="font-medium">Chat with</h3>
             </CardHeader>
-            
-            <CardContent className="p-6 pt-3">
-              <h3 className="font-medium mb-2">Description</h3>
-              <p className="text-muted-foreground mb-6">{task.description}</p>
-              
-              {task.status !== TaskStatus.SCHEDULED && (
-                <>
-                  <h3 className="font-medium mb-2">Progress</h3>
-                  {task.status !== TaskStatus.COMPLETED ? (
-                    <div className="mb-6">
-                      <div className="progress-indicator mb-2">
-                        <div 
-                          className="progress-indicator-value" 
-                          style={{ width: `${task.progress}%` }}
-                        ></div>
-                      </div>
-                      <div className="text-sm text-right text-muted-foreground">
-                        {task.progress}% complete
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="progress-indicator mb-6">
-                      <div className="progress-indicator-value" style={{ width: '100%' }}></div>
-                    </div>
-                  )}
-                </>
-              )}
-              
-              <div className="flex justify-end">
-                <Button 
-                  onClick={() => navigate(`/agent/${task.agent.id}/chat`)}
-                  className="ml-auto"
-                >
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Chat with Agent
-                </Button>
-              </div>
+            <CardContent className="p-0">
+              <ChatWindow
+                agent={task.agent}
+                messages={messages}
+                onSendMessage={handleSendMessage}
+                isLoading={isLoading}
+              />
             </CardContent>
           </Card>
         </div>
-        
-        <div>
-          <Card className="h-[600px]">
+
+        {/* Progress Timeline - Right Side */}
+        <div className="lg:col-span-2">
+          <Card>
             <CardHeader className="p-4 border-b">
-              <CardTitle className="text-lg">Progress Timeline</CardTitle>
+              <h3 className="font-medium">Task Progress & Actions</h3>
             </CardHeader>
-            
-            <ScrollArea className="h-[calc(100%-56px)]">
-              <CardContent className="p-4">
-                {task.progressUpdates.length > 0 ? (
-                  <div className="space-y-4">
-                    {task.progressUpdates.map((update: ProgressUpdate) => (
-                      <div key={update.id} className="border-l-2 pl-4 pb-4 relative">
-                        <div 
-                          className={`w-3 h-3 rounded-full absolute -left-[7px] top-0 ${
-                            update.status === 'completed' 
-                              ? 'bg-green-500'
-                              : update.status === 'blocked'
-                              ? 'bg-red-500'
-                              : update.status === 'in-progress'
-                              ? 'bg-blue-500'
-                              : 'bg-gray-300'
-                          }`}
-                        ></div>
-                        <h4 className="font-medium text-sm">{update.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {update.description}
-                        </p>
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {formatDateTime(update.timestamp)}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="h-full flex items-center justify-center text-muted-foreground">
-                    No progress updates available.
-                  </div>
-                )}
-              </CardContent>
-            </ScrollArea>
+            <CardContent className="p-0">
+              <ProgressUpdates 
+                updates={[
+                  {
+                    id: '1',
+                    title: 'Task Created',
+                    description: 'Task assigned to AI agent',
+                    status: 'completed',
+                    timestamp: task.assignedAt,
+                    details: {
+                      type: 'system',
+                      metadata: {
+                        taskId: task.id,
+                        priority: task.priority,
+                        assignedTo: task.agent.name
+                      }
+                    }
+                  },
+                  {
+                    id: '2',
+                    title: 'Initial Assessment',
+                    description: task.description,
+                    status: 'completed',
+                    timestamp: new Date().toISOString(),
+                    details: {
+                      type: 'analysis',
+                      result: 'Task requirements analyzed and confirmed',
+                      metadata: {
+                        complexity: 'Medium',
+                        estimatedDuration: '2 days'
+                      }
+                    }
+                  },
+                  // Add more progress updates based on task status and history
+                ]}
+                showDetails={true}
+              />
+            </CardContent>
           </Card>
+
+          {/* Action Buttons */}
+          {task.status !== TaskStatus.COMPLETED && task.status !== TaskStatus.CANCELLED && (
+            <div className="flex justify-end gap-2 mt-4">
+              <Button 
+                variant="outline" 
+                onClick={handleCompleteTask}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                Complete Task
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleCancelTask}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Cancel Task
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

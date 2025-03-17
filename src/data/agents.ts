@@ -583,3 +583,16 @@ export function searchTasks(query: string) {
     task.agent.name.toLowerCase().includes(lowercaseQuery)
   );
 }
+
+
+export function getTask(id: string): Task | null {
+  try {
+    const task = tasks.find(t => t.id === id);
+    console.log('Fetching task:', id, task);
+    return task || null;
+  } catch (error) {
+    console.error('Error fetching task:', error);
+    return null;
+  }
+}
+   

@@ -8,11 +8,24 @@ git branch -M main
 git remote add origin https://github.com/hari-pudusseri/task_agents.git
 git push -u origin main
 
+To commit 
+git add *
+git commit -m "x commit"
+git push -u origin main
+
 
 To pull and commit 
 
-For Vite Script
 
+
+For Vite Script - Run 
 npm run dev
+
+
+Starting MCP Server
+
+npx @agentdeskai/browser-tools-server@1.2.0
+
+
 
 */
